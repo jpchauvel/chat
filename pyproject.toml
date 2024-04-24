@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "chat"
+version = "0.1.0"
+description = "A small chat app built using FastAPI, uvicorn and redis.pubsub. It also contains a small CLI that connects to the API with the websockets package."
+authors = ["Jean-Pierre Chauvel <jean.p.chauvel@gmail.com>"]
+license = "CC0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.110.2"
+redis = "^5.0.4"
+websockets = "^12.0"
+uvicorn = {extras = ["standard"], version = "^0.29.0"}
+click = "^8.1.7"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.0"
+isort = "^5.13.2"
+
+[tool.black]
+line-length = 79
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
