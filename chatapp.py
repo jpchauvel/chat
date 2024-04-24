@@ -13,7 +13,6 @@ app = FastAPI()
 global_room = "global_room"
 
 logging.basicConfig(level=logging.INFO)
-clients = []
 
 
 async def get_redis_client(host: str = "localhost"):
@@ -45,8 +44,6 @@ async def chat_publisher(
 async def main_chat_handler(websocket: WebSocket, nickname: str):
     logging.info(f"User {nickname} joined the chat")
     client = await get_redis_client(app.redis)
-    global clients
-    clients.append(client)
 
     try:
         await websocket.accept()
