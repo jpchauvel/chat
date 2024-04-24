@@ -1,34 +1,31 @@
 #!/usr/bin/env python3
 import json
 
-import click
+import typer
+from typing_extensions import Annotated
 from websockets.sync.client import connect
 
 
-@click.command()
-@click.option(
-    "--nickname",
-    prompt="Enter your nickname",
-    help="Your nickname in the chat",
-)
-@click.option(
-    "--api-url",
-    default="ws://localhost:8000/chat/",
-    help="The URL of the chat API websocket",
-)
-def chat_cli(nickname, api_url):
+def chat_cli(
+    nickname: Annotated[
+        str, typer.Option(help="Enter your nickname", prompt=True)
+    ],
+    api_url: Annotated[
+        str, typer.Option(help="The URL of the chat API websocket")
+    ] = "ws://localhost:8000/chat/",
+):
     with connect(api_url + nickname) as ws:
-        click.echo(f"Connected to chat as {nickname}")
+        print(f"Connected to chat as {nickname}")
 
         def on_message(ws, message):
             data = json.loads(message)
             sender = data["nickname"]
             content = data["message"]
-            click.echo(f"{sender}: {content}")
+            print(f"{sender}: {content}")
 
         try:
             while True:
-                message = click.prompt("Your message", type=str)
+                message = typer.prompt("Your message", type=str)
                 ws.send(json.dumps({"nickname": nickname, "message": message}))
                 # Receive and print messages from other users immediately after
                 # sending a message
@@ -37,8 +34,8 @@ def chat_cli(nickname, api_url):
                     on_message(ws, message)
         except KeyboardInterrupt:
             ws.close()
-            click.echo("Disconnected from chat.")
+            print("Disconnected from chat.")
 
 
 if __name__ == "__main__":
-    chat_cli()
+    typer.run(chat_cli)

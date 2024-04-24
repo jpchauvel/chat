@@ -3,10 +3,11 @@ import asyncio
 import json
 import logging
 
-import click
 import redis.asyncio as redis
+import typer
 import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from typing_extensions import Annotated
 
 app = FastAPI()
 
@@ -63,14 +64,14 @@ async def main_chat_handler(websocket: WebSocket, nickname: str):
         logging.info(f"User {nickname} is disconnecting...")
 
 
-@click.command()
-@click.option("--host", default="0.0.0.0", help="Host to run the server on")
-@click.option("--port", default=8000, help="Port to run the server on")
-@click.option("--redis", default="localhost", help="Redis host")
-def run_server(host, port, redis):
+def run_server(
+    host: Annotated[str, typer.Option()] = "0.0.0.0",
+    port: Annotated[int, typer.Option()] = 8000,
+    redis: Annotated[str, typer.Option()] = "localhost",
+):
     app.redis = redis
     uvicorn.run(app, host=host, port=port)
 
 
 if __name__ == "__main__":
-    run_server()
+    typer.run(run_server)
