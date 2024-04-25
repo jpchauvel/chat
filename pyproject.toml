@@ -19,7 +19,7 @@ black = "^24.4.0"
 isort = "^5.13.2"
 
 [tool.black]
-line-length = 79
+line-length = 80
 
 [build-system]
 requires = ["poetry-core"]
