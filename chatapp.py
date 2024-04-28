@@ -2,6 +2,9 @@
 import asyncio
 import json
 import logging
+from contextlib import asynccontextmanager
+from dataclasses import dataclass
+from typing import Optional
 
 import redis.asyncio as redis
 import typer
@@ -10,11 +13,28 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from redis.asyncio.client import PubSub
 from typing_extensions import Annotated
 
-app: FastAPI = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> None:
+    yield
+    for future in settings.app_futures:
+        future.cancel()
+
+
+app: FastAPI = FastAPI(lifespan=lifespan)
 
 global_room = "global_room"
 
 logging.basicConfig(level=logging.INFO)
+
+
+@dataclass
+class Settings:
+    app_futures: list[asyncio.Task[None]]
+    redis_host: str
+
+
+settings: Optional[Settings] = None
 
 
 async def get_redis_client(host: str = "localhost") -> redis.Redis:
@@ -45,7 +65,7 @@ async def chat_publisher(client: redis.Redis, websocket: WebSocket) -> None:
 @app.websocket(path="/chat/{nickname}")
 async def main_chat_handler(websocket: WebSocket, nickname: str) -> None:
     logging.info(msg=f"User {nickname} joined the chat")
-    client: redis.Redis = await get_redis_client(host=app.redis)
+    client: redis.Redis = await get_redis_client(host=settings.redis_host)
 
     try:
         await websocket.accept()
@@ -59,10 +79,15 @@ async def main_chat_handler(websocket: WebSocket, nickname: str) -> None:
             publisher_future: asyncio.Task[None] = asyncio.create_task(
                 coro=chat_publisher(client, websocket)
             )
+            settings.app_futures.extend([reader_future, publisher_future])
             await publisher_future
             await reader_future
     except WebSocketDisconnect:
         logging.info(msg=f"User {nickname} is disconnecting...")
+    except asyncio.exceptions.CancelledError:
+        pass
+    except redis.ConnectionError:
+        pass
 
 
 def run_server(
@@ -70,7 +95,8 @@ def run_server(
     port: Annotated[int, typer.Option()] = 8000,
     redis: Annotated[str, typer.Option()] = "localhost",
 ) -> None:
-    app.redis = redis
+    global settings
+    settings = Settings(app_futures=[], redis_host=redis)
     uvicorn.run(app=app, host=host, port=port)
 
 
