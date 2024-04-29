@@ -79,9 +79,8 @@ async def main_chat_handler(websocket: WebSocket, nickname: str) -> None:
             publisher_future: asyncio.Task[None] = asyncio.create_task(
                 coro=chat_publisher(client, websocket)
             )
+            await asyncio.gather(reader_future, publisher_future)
             settings.app_futures.extend([reader_future, publisher_future])
-            await publisher_future
-            await reader_future
     except WebSocketDisconnect:
         logging.info(msg=f"User {nickname} is disconnecting...")
     except asyncio.exceptions.CancelledError:
