@@ -32,26 +32,19 @@ docker-compose -f docker-compose.yml up
 
 ## Running the test script
 
-In this case you have to first make sure you have Python and Poetry installed in
-your system.
-
-I will not give you details on how to install Python in your system, for that
-you can go to [https://www.python.org](https://www.python.org).
-
-To install poetry, just run the following command:
-
-```sh
-pip install -U poetry
-```
+To build, install `uv`, follow the instructions in their documentation
+<https://docs.astral.sh/uv/getting-started/installation/>, `uv` will handle all
+the dependencies and the python installation as well. So we don't need to
+install `python` separately.
 
 Then, install all the test script dependencies, just so:
 
 ```sh
-poetry install
+uv sync
 ```
 
 After that you're good to run the test script!
 
 ```sh
-poetry run ./testchat.py
+uv run ./testchat.py
 ```

@@ -1,26 +1,26 @@
-[tool.poetry]
-name = "chat"
-version = "0.1.0"
-description = "A small chat app built using FastAPI, uvicorn and redis.pubsub. It also contains a small CLI that connects to the API with the websockets package."
-authors = ["Jean-Pierre Chauvel <jean.p.chauvel@gmail.com>"]
-license = "CC0"
-readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.12"
-fastapi = "^0.110.2"
-redis = "^5.0.4"
-websockets = "^12.0"
-uvicorn = {extras = ["standard"], version = "^0.29.0"}
-typer = "^0.12.3"
-
-[tool.poetry.group.dev.dependencies]
-black = "^24.4.0"
-isort = "^5.13.2"
-
 [tool.black]
 line-length = 80
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[project]
+authors = [
+    {name = "Jean-Pierre Chauvel", email = "jean.p.chauvel@gmail.com"},
+]
+license = {text = "CC0"}
+requires-python = "<4.0,>=3.12"
+dependencies = [
+    "fastapi<1.0.0,>=0.110.2",
+    "redis<6.0.0,>=5.0.4",
+    "websockets<13.0,>=12.0",
+    "uvicorn[standard]<1.0.0,>=0.29.0",
+    "typer<1.0.0,>=0.12.3",
+]
+name = "chat"
+version = "0.2.0"
+description = "A small chat app built using FastAPI, uvicorn and redis.pubsub. It also contains a small CLI that connects to the API with the websockets package."
+readme = "README.md"
+
+[dependency-groups]
+dev = [
+    "black<25.0.0,>=24.4.0",
+    "isort<6.0.0,>=5.13.2",
+]

@@ -34,7 +34,7 @@ def chat_cli(
                 )
                 # Receive and print messages from other users immediately after
                 # sending a message
-                message: Data = ws.recv()
+                message = ws.recv()
                 if message:
                     on_message(message=message)
         except KeyboardInterrupt:
